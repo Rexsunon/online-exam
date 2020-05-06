@@ -22,3 +22,21 @@ def get_exams():
     # serializing as JSON
     session.close()
     return jsonify(exams.data)
+
+@app.route('/exmas', methods=['POST'])
+def add_exam():
+    # mount exam object
+    post_exam = ExamSchema(only=('title', 'description'))
+        .load(request.get_json())
+
+    exam = Exam(**post_exam, created_by='HTTP post request')
+
+    # Presist exam
+    session = Session()
+    session.add(exam)
+    session.commit()
+
+    # return created exam
+    new_exam = ExamSchema.dump(exam).data
+    session.close()
+    return jsonify(new_exam), 201
