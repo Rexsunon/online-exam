@@ -1,26 +1,24 @@
+from flask import Flask, jsonify, request
+
 from .entities.entity import Session, engine, Base
-from .entities.exam import Exam
+from .entities.exam import Exam, ExamSchema
+
+# Create flask appliction
+app = Flask(__name__)
 
 # Generate datebase schema
 Base.metadata.create_all(engine)
 
-# Start session
-session = Session()
+@app.route('/exams')
+def get_exams():
+    # Fetch from DB
+    session = Session()
+    exam_objects = session.query(Exam).all()
 
-# Check for existing data
-exams = session.query(Exam).all()
+    # Transform into json-serialized objects
+    schema = ExamSchema(many=True)
+    exams = schema.dump(exam_objects)
 
-if len(exams) == 0:
-    # Create and presist dummy exam
-    test_exam = Exam('Dummy exam', 'Test your knowledge on dummy exam.', 'Author')
-    session.add(test_exam)
-    session.commit()
+    # serializing as JSON
     session.close()
-
-    # Reload exams
-    exams = session.query(Exam).all()
-
-# Show existing exmas
-print('### Exams:')
-for exam in exams:
-    print(f'({exam.id}) {exam.title} - {exam.description}')
+    return jsonify(exams.data)
