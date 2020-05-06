@@ -1,0 +1,12 @@
+<div style="text-align: center;">
+  <h1>Exams</h1>
+</div>
+
+<h2>Here are the created exams so far:</h2>
+<ul>
+  <li *ngFor="let exam of examList">
+    {{ exam.title }}
+  </li>
+</ul>
+
+<router-outlet></router-outlet>
